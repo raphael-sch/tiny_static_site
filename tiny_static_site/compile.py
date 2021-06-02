@@ -1,8 +1,10 @@
-import jinja2
+import argparse
 import os
 import sys
 from os import path
 import json
+
+import jinja2
 
 from .utils import get_url_for_func, get_assets_url_for_func, get_build_title_func
 from .utils import is_active_route
@@ -11,6 +13,10 @@ from .utils import get_meta_data, copy_assets, unzip_assets
 
 assert sys.version_info >= (3, 8)
 debug = False
+
+parser = argparse.ArgumentParser(description='Tiny static site')
+parser.add_argument('--branch', default='dev', type=str, help='Current branch; main or dev')
+opts = parser.parse_args()
 
 
 def run():
@@ -22,6 +28,7 @@ def run():
     compiled_dir = 'compiled'
     meta_data = get_meta_data(source_dir)
     print('baseurl', meta_data['baseurl'])
+    meta_data['branch'] = opts.branch
 
     if 'sass' in sys.argv:
         from .compile_sass import compile_sass
