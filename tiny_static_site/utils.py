@@ -12,7 +12,7 @@ def get_meta_data(source_dir):
     meta_data['skip_assets'] = meta_data.get('skip_assets', [])
     meta_data['unzip_assets'] = meta_data.get('unzip_assets', [])
 
-    for key in ['baseurl', 'add_index_html']:
+    for key in ['baseurl', 'add_index_html', 'branch']:
         env_key = 'RP_' + key.upper()
         meta_data[key] = _maybe_get_env_boolean(os.getenv(env_key, meta_data[key]))
         print('data:', key, meta_data[key])

@@ -1,4 +1,3 @@
-import argparse
 import os
 import sys
 from os import path
@@ -14,10 +13,6 @@ from .utils import get_meta_data, copy_assets, unzip_assets
 assert sys.version_info >= (3, 8)
 debug = False
 
-parser = argparse.ArgumentParser(description='Tiny static site')
-parser.add_argument('--branch', default='dev', type=str, help='Current branch; main or dev')
-opts = parser.parse_args()
-
 
 def run():
     if 'debug' in sys.argv:
@@ -28,7 +23,6 @@ def run():
     compiled_dir = 'compiled'
     meta_data = get_meta_data(source_dir)
     print('baseurl', meta_data['baseurl'])
-    meta_data['branch'] = opts.branch
 
     if 'sass' in sys.argv:
         from .compile_sass import compile_sass
