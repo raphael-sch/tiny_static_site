@@ -70,7 +70,9 @@ def get_parse_url_filter(assets_url):
 
 def get_build_title_func(meta_data):
     def build_title(page):
-        titles = [page['title']]
+        titles = []
+        if 'title' in page:
+            titles.append(page['title'])
         while 'parent' in page:
             titles.append(page['parent']['title'])
             page = page['parent']
@@ -79,6 +81,10 @@ def get_build_title_func(meta_data):
         title += meta_data['title']
         return title
     return build_title
+
+
+def is_active_route(active_route, link_route):
+    return active_route.startswith(link_route)
 
 
 def copy_assets(source_dir, content_dir, assets_dir, content, skip_assets=None):
