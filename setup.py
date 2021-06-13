@@ -10,7 +10,8 @@ setup(
     python_requires=">=3.8",
     install_requires=[
         'Jinja2==2.11.3',
-        'libsass==0.20.1'
+        'libsass==0.20.1',
+        'beautifulsoup4==4.9.3'
     ],
     url='',
     license='',

@@ -4,6 +4,7 @@ from os import path
 import json
 
 import jinja2
+from bs4 import BeautifulSoup
 
 from .utils import get_url_for_func, get_assets_url_for_func, get_build_title_func
 from .utils import is_active_route
@@ -170,5 +171,9 @@ def render_html(output_dir, route, template, page_data, meta_data):
     os.makedirs(output_dir, exist_ok=True)
     output_file = path.join(output_dir, 'index.html')
     data = dict(meta=meta_data, page=page_data)
-    template.stream(data).dump(output_file)
+    html = template.render(data)
+    soup = BeautifulSoup(html, features="html.parser")
+    pretty_html = soup.prettify()
+    with open(output_file, 'w') as f:
+        f.write(pretty_html)
     print(output_file)
