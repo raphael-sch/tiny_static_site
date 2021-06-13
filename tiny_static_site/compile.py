@@ -8,7 +8,7 @@ import jinja2
 from .utils import get_url_for_func, get_assets_url_for_func, get_build_title_func
 from .utils import is_active_route
 from .utils import get_parse_url_filter
-from .utils import get_meta_data, copy_assets, unzip_assets
+from .utils import get_meta_data, copy_meta_files, copy_assets, unzip_assets
 
 assert sys.version_info >= (3, 8)
 debug = False
@@ -23,6 +23,7 @@ def run():
     compiled_dir = 'compiled'
     meta_data = get_meta_data(source_dir)
     print('baseurl', meta_data['baseurl'])
+    copy_meta_files(source_dir, compiled_dir, meta_data['branch'])
 
     if 'sass' in sys.argv:
         from .compile_sass import compile_sass

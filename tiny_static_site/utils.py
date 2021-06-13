@@ -2,7 +2,7 @@ import json
 import os
 import zipfile
 from os import path
-from shutil import copytree
+from shutil import copytree, copy2
 
 
 def get_meta_data(source_dir):
@@ -22,6 +22,22 @@ def get_meta_data(source_dir):
         meta_data['data'][key] = _maybe_get_env_boolean(os.getenv(env_key, meta_data['data'][key]))
         print('meta data:', key, meta_data['data'][key])
     return meta_data
+
+
+def copy_meta_files(source_dir, compiled_dir, branch):
+    meta_file_dir = os.path.join(source_dir, 'meta')
+
+    htaccess_file = os.path.join(meta_file_dir, '.htaccess_' + branch)
+    if os.path.isfile(htaccess_file):
+        target_file = os.path.join(compiled_dir, '.htaccess')
+        print('copy meta file from {} to {}'.format(htaccess_file, target_file))
+        copy2(htaccess_file, target_file)
+
+    htpasswd_file = os.path.join(meta_file_dir, '.htpasswd_' + branch)
+    if os.path.isfile(htpasswd_file):
+        target_file = os.path.join(compiled_dir, '.htpasswd')
+        print('copy meta file from {} to {}'.format(htpasswd_file, target_file))
+        copy2(htpasswd_file, target_file)
 
 
 def _maybe_get_env_boolean(str_value):
