@@ -21,6 +21,7 @@ def run():
 
     source_dir = 'source'
     compiled_dir = 'compiled'
+    os.makedirs(compiled_dir, exist_ok=True)
     meta_data = get_meta_data(source_dir)
     print('baseurl', meta_data['baseurl'])
     copy_meta_files(source_dir, compiled_dir, meta_data['branch'])
