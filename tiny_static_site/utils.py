@@ -3,6 +3,7 @@ import os
 import zipfile
 from os import path
 from shutil import copytree, copy2
+from urllib.parse import urlparse
 
 
 def get_meta_data(source_dir):
@@ -101,6 +102,13 @@ def get_build_title_func(meta_data):
 
 def is_active_route(active_route, link_route):
     return active_route.startswith(link_route)
+
+
+def get_base_domain(url):
+    d = urlparse(url).netloc
+    if d.startswith('www.'):
+        d = d[4:]
+    return d
 
 
 def copy_assets(source_dir, content_dir, assets_dir, content, skip_assets=None):
