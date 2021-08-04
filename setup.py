@@ -11,7 +11,8 @@ setup(
     install_requires=[
         'Jinja2==2.11.3',
         'libsass==0.20.1',
-        'beautifulsoup4==4.9.3'
+        'beautifulsoup4==4.9.3',
+        'Pillow-8.3.1'
     ],
     url='',
     license='',

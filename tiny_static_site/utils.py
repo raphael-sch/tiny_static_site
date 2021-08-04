@@ -69,12 +69,24 @@ def get_url_for_func(baseurl, content, add_index_html=True):
 
 
 def get_assets_url_for_func(assets_url):
-    def url_for(*route, filename=None):
+    def assets_url_for(*route, filename=None):
         if filename:
             return path.join(assets_url, *route, filename)
         else:
             return path.join(assets_url, *route)
-    return url_for
+    return assets_url_for
+
+
+def get_image_url_for_func(assets_url, thumbnail_paths=set()):
+    def image_url_for(*route, filename, thumbnail=False):
+        p = path.join(assets_url, *route, filename)
+        raw_path, file_ending = p.split('.', maxsplit=1)
+        assert file_ending in ['png', 'jpeg']
+        if thumbnail:
+            thumbnail_paths.add(path.join(*route, filename))
+            p = raw_path + '_thumbnail.png'
+        return p
+    return image_url_for, thumbnail_paths
 
 
 def get_parse_url_filter(assets_url):

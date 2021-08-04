@@ -6,7 +6,8 @@ import json
 import jinja2
 from bs4 import BeautifulSoup
 
-from .utils import get_url_for_func, get_assets_url_for_func, get_build_title_func, get_base_domain
+from .utils import get_url_for_func, get_assets_url_for_func, get_image_url_for_func
+from .utils import get_build_title_func, get_base_domain
 from .utils import is_active_route
 from .utils import get_parse_url_filter
 from .utils import get_meta_data, copy_meta_files, copy_assets, unzip_assets
@@ -27,30 +28,43 @@ def run():
     print('baseurl', meta_data['baseurl'])
     copy_meta_files(source_dir, compiled_dir, meta_data['branch'])
 
-    if 'sass' in sys.argv:
-        from .compile_sass import compile_sass
-        compile_sass(sass_file=meta_data['sass_file'])
-
     base_path = path.abspath(compiled_dir)
     assets_url = os.path.join(meta_data['baseurl'], 'assets')
     assets_dir = os.path.join(base_path, 'assets')
     content_dir = path.join(source_dir, 'content')
     templates_dir = path.join(source_dir, 'templates')
 
+    if 'sass' in sys.argv:
+        from .compile_sass import compile_sass
+        compile_sass(sass_file=meta_data['sass_file'])
+
     meta_data['assets_dir'] = assets_dir
     content = collect_content(content_dir)
     print('routes', content.keys())
     url_for_func = get_url_for_func(meta_data['baseurl'], content, add_index_html=meta_data['add_index_html'])
-
+    image_url_for_func, thumbnail_paths = get_image_url_for_func(assets_url)
 
     jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(searchpath=templates_dir))
     jinja_env.globals.update(url_for=url_for_func)
     jinja_env.globals.update(assets_url_for=get_assets_url_for_func(assets_url))
+    jinja_env.globals.update(image_url_for=image_url_for_func)
     jinja_env.globals.update(is_active_route=is_active_route)
     jinja_env.globals.update(build_title=get_build_title_func(meta_data))
     jinja_env.globals.update(get_base_domain=get_base_domain)
     jinja_env.filters['parse_url'] = get_parse_url_filter(assets_url)
     templates = jinja_env
+
+    for route, data in content.items():
+        if data.get('no_render', False):
+            continue
+        meta_data['active_route'] = route
+        render_page(compiled_dir, templates, meta_data, route, data)
+
+    if 'thumb' in sys.argv:
+        from .compile_thumbnails import create_thumbnails
+        create_thumbnails(source_assets_dir=os.path.join(source_dir, 'assets'),
+                          thumbnail_paths=thumbnail_paths,
+                          size=meta_data['thumbnail_size'])
 
     copy_assets(source_dir=source_dir,
                 content_dir=content_dir,
@@ -58,12 +72,6 @@ def run():
                 content=content,
                 skip_assets=meta_data['skip_assets'] if 'skip_copy' in sys.argv else None)
     unzip_assets(assets_dir, meta_data['unzip_assets'])
-
-    for route, data in content.items():
-        if data.get('no_render', False):
-            continue
-        meta_data['active_route'] = route
-        render_page(compiled_dir, templates, meta_data, route, data)
 
 
 def collect_content(content_dir):
