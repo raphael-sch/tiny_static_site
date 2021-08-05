@@ -81,7 +81,7 @@ def get_image_url_for_func(assets_url, thumbnail_paths=set()):
     def image_url_for(*route, filename, thumbnail=False):
         p = path.join(assets_url, *route, filename)
         raw_path, file_ending = p.split('.', maxsplit=1)
-        assert file_ending in ['png', 'jpeg']
+        assert file_ending in ['png', 'jpeg', 'jpg']
         if thumbnail:
             thumbnail_paths.add(path.join(*route, filename))
             p = raw_path + '_thumbnail.png'
