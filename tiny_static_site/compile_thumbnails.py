@@ -3,14 +3,14 @@ import os
 from PIL import Image
 
 
-def create_thumbnails(source_assets_dir, thumbnail_paths, size):
-    for path in thumbnail_paths:
+def create_thumbnails(source_assets_dir, thumbnail_paths):
+    for path, size in thumbnail_paths:
         path = os.path.join(source_assets_dir, path)
         output_path = create_thumbnail(path, size)
         print('created thumbnail: {}'.format(output_path))
 
 
-def create_thumbnail(image_path, size=(300, 300)):
+def create_thumbnail(image_path, size):
     image = Image.open(image_path)
     image.thumbnail(size, Image.ANTIALIAS)
     background = Image.new('RGBA', size, (255, 255, 255, 0))
@@ -19,7 +19,7 @@ def create_thumbnail(image_path, size=(300, 300)):
     )
 
     output_raw_path = image_path.split('.')[0]
-    output_path = output_raw_path + '_thumbnail.png'
+    output_path = output_raw_path + '_thumbnail_{}x{}.png'.format(*size)
 
     background.save(output_path)
 

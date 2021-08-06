@@ -63,8 +63,7 @@ def run():
     if 'thumb' in sys.argv:
         from .compile_thumbnails import create_thumbnails
         create_thumbnails(source_assets_dir=os.path.join(source_dir, 'assets'),
-                          thumbnail_paths=thumbnail_paths,
-                          size=meta_data['thumbnail_size'])
+                          thumbnail_paths=thumbnail_paths)
 
     copy_assets(source_dir=source_dir,
                 content_dir=content_dir,
