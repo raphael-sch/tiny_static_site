@@ -1,13 +1,12 @@
 import json
 import os
 import zipfile
-from os import path
 from shutil import copytree, copy2
 from urllib.parse import urlparse
 
 
 def get_meta_data(source_dir):
-    with open(path.join(source_dir, 'meta.json')) as f:
+    with open(os.path.join(source_dir, 'meta.json')) as f:
         meta_data = json.load(f)
 
     meta_data['skip_assets'] = meta_data.get('skip_assets', [])
@@ -62,34 +61,37 @@ def get_url_for_func(baseurl, content, add_index_html=True):
                 raise ValueError('route flagged as no render')
 
         if filename == 'index.html' and not add_index_html:
-            return path.join(baseurl, route)
+            return os.path.join(baseurl, route)
         else:
-            return path.join(baseurl, route, filename)
+            return os.path.join(baseurl, route, filename)
     return url_for
 
 
 def get_assets_url_for_func(assets_url):
     def assets_url_for(*route, filename=None):
         if filename:
-            return path.join(assets_url, *route, filename)
+            return os.path.join(assets_url, *route, filename)
         else:
-            return path.join(assets_url, *route)
+            return os.path.join(assets_url, *route)
     return assets_url_for
 
 
 def get_image_url_for_func(assets_url, thumbnail_paths=set()):
     def image_url_for(*route, filename, thumbnail=False):
-        p = path.join(assets_url, *route, filename)
-        raw_path, file_ending = p.split('.', maxsplit=1)
-        assert file_ending in ['png', 'jpeg', 'jpg']
-        if thumbnail:
-            if thumbnail is True:
-                size = (300, 300)
-            else:
-                size = thumbnail
-            thumbnail_paths.add((path.join(*route, filename), tuple(size)))
-            p = raw_path + '_thumbnail_{}x{}.png'.format(*size)
-        return p
+        raw_filename, file_ending = os.path.splitext(filename)
+        assert file_ending in ['.png', '.jpeg', '.jpg']
+
+        if not thumbnail:
+            return os.path.join(assets_url, *route, filename)
+
+        if thumbnail is True:
+            size = (300, 300)
+        else:
+            size = thumbnail
+        thumbnail_paths.add((os.path.join(*route, filename), tuple(size)))
+        thumbnail_filename = raw_filename + '_thumbnail_{}x{}.png'.format(*size)
+        return os.path.join(assets_url, 'thumbnails', *route, thumbnail_filename)
+
     return image_url_for, thumbnail_paths
 
 
@@ -129,15 +131,15 @@ def get_base_domain(url):
 
 def copy_assets(source_dir, content_dir, assets_dir, content, skip_assets=None):
     os.makedirs(assets_dir, exist_ok=True)
-    source_assets_dir = path.join(source_dir, 'assets')
+    source_assets_dir = os.path.join(source_dir, 'assets')
 
     if skip_assets:
-        skip_assets = [path.join(source_assets_dir, d) for d in skip_assets]
+        skip_assets = [os.path.join(source_assets_dir, d) for d in skip_assets]
 
     def ignore_func(src, names):
         ignore_names = list()
         for name in names:
-            file_path = path.join(src, name)
+            file_path = os.path.join(src, name)
             if file_path in skip_assets:
                 ignore_names.append(name)
                 print('ignore', file_path)
