@@ -31,8 +31,10 @@ def run():
     base_path = path.abspath(compiled_dir)
     assets_url = os.path.join(meta_data['baseurl'], 'assets')
     assets_dir = os.path.join(base_path, 'assets')
+
     content_dir = path.join(source_dir, 'content')
     templates_dir = path.join(source_dir, 'templates')
+    source_assets_dir = os.path.join(source_dir, 'assets')
 
     if 'sass' in sys.argv:
         from .compile_sass import compile_sass
@@ -46,7 +48,7 @@ def run():
 
     jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(searchpath=templates_dir))
     jinja_env.globals.update(url_for=url_for_func)
-    jinja_env.globals.update(assets_url_for=get_assets_url_for_func(assets_url))
+    jinja_env.globals.update(assets_url_for=get_assets_url_for_func(source_assets_dir, assets_url))
     jinja_env.globals.update(image_url_for=image_url_for_func)
     jinja_env.globals.update(is_active_route=is_active_route)
     jinja_env.globals.update(build_title=get_build_title_func(meta_data))

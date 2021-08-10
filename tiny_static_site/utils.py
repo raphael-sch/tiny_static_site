@@ -68,12 +68,13 @@ def get_url_for_func(baseurl, content, add_index_html=True):
     return url_for
 
 
-def get_assets_url_for_func(assets_url):
+def get_assets_url_for_func(source_assets_dir, assets_url):
     def assets_url_for(*route, filename=None, md5=False):
         if filename:
             p = os.path.join(assets_url, *route, filename)
             if md5:
-                md5_str = hashlib.md5(open(p, 'rb').read()).hexdigest()
+                source_path = os.path.join(source_assets_dir, *route, filename)
+                md5_str = hashlib.md5(open(source_path, 'rb').read()).hexdigest()
                 p += '?v=' + str(md5_str)[:10]
         else:
             assert not md5
