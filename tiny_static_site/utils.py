@@ -1,6 +1,7 @@
 import json
 import os
 import zipfile
+import hashlib
 from shutil import copytree, copy2
 from urllib.parse import urlparse
 
@@ -68,11 +69,16 @@ def get_url_for_func(baseurl, content, add_index_html=True):
 
 
 def get_assets_url_for_func(assets_url):
-    def assets_url_for(*route, filename=None):
+    def assets_url_for(*route, filename=None, md5=False):
         if filename:
-            return os.path.join(assets_url, *route, filename)
+            p = os.path.join(assets_url, *route, filename)
+            if md5:
+                md5_str = hashlib.md5(open(p, 'rb').read()).hexdigest()
+                p += '?v=' + str(md5_str)[:10]
         else:
-            return os.path.join(assets_url, *route)
+            assert not md5
+            p = os.path.join(assets_url, *route)
+        return p
     return assets_url_for
 
 
