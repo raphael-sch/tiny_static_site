@@ -183,7 +183,7 @@ def render_html(output_dir, route, template, page_data, meta_data):
     data = dict(meta=meta_data, page=page_data)
     html = template.render(data)
     soup = BeautifulSoup(html, features="html.parser")
-    pretty_html = soup.prettify()
+    pretty_html = soup.prettify(formatter='html')
     with open(output_file, 'w') as f:
         f.write(pretty_html)
     print(output_file)
