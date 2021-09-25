@@ -37,7 +37,7 @@ def run():
     templates_dir = path.join(source_dir, 'templates')
     source_assets_dir = os.path.join(source_dir, 'assets')
 
-    if 'sass' in sys.argv:
+    if 'sass' in sys.argv or 'all' in sys.argv:
         from .compile_sass import compile_sass
         compile_sass(sass_file=meta_data['sass_file'])
 
@@ -63,13 +63,13 @@ def run():
         meta_data['active_route'] = route
         render_page(compiled_dir, templates, meta_data, route, data)
 
-    if 'thumb' in sys.argv:
+    if 'thumb' in sys.argv or 'all' in sys.argv:
         from .compile_thumbnails import create_thumbnails
         create_thumbnails(source_assets_dir=os.path.join(source_dir, 'assets'),
                           thumbnail_paths=thumbnail_paths)
 
-    if 'address_image' in sys.argv:
-        generate_address_image(source_assets_dir, meta_data['address_image'])
+    if 'address_image' in sys.argv or 'all' in sys.argv:
+        generate_address_image(source_assets_dir, meta_data.get('address_image'))
 
     copy_assets(content_dir=content_dir,
                 source_assets_dir=source_assets_dir,

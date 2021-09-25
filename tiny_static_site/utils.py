@@ -177,6 +177,8 @@ def unzip_assets(assets_dir, zip_files):
 
 
 def generate_address_image(source_assets_dir, args):
+    if args is None:
+        return None
     from PIL import Image, ImageDraw, ImageFont, ImageColor
 
     text = args['text']
@@ -194,4 +196,5 @@ def generate_address_image(source_assets_dir, args):
     filename = 'a_image.png'
     filepath = os.path.join(source_assets_dir, 'images', filename)
     img.save(filepath)
+    return filepath
 
