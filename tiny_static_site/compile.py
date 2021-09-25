@@ -11,6 +11,7 @@ from .utils import get_build_title_func, get_base_domain
 from .utils import is_active_route
 from .utils import get_parse_url_filter
 from .utils import get_meta_data, copy_meta_files, copy_assets, unzip_assets
+from .utils import generate_address_image
 
 assert sys.version_info >= (3, 8)
 debug = False
@@ -67,8 +68,11 @@ def run():
         create_thumbnails(source_assets_dir=os.path.join(source_dir, 'assets'),
                           thumbnail_paths=thumbnail_paths)
 
-    copy_assets(source_dir=source_dir,
-                content_dir=content_dir,
+    if 'address_image' in meta_data:
+        generate_address_image(source_assets_dir, meta_data['address_image'])
+
+    copy_assets(content_dir=content_dir,
+                source_assets_dir=source_assets_dir,
                 assets_dir=assets_dir,
                 content=content,
                 skip_assets=meta_data['skip_assets'] if 'skip_copy' in sys.argv else None)

@@ -136,9 +136,8 @@ def get_base_domain(url):
     return d
 
 
-def copy_assets(source_dir, content_dir, assets_dir, content, skip_assets=None):
+def copy_assets(content_dir, source_assets_dir, assets_dir, content, skip_assets=None):
     os.makedirs(assets_dir, exist_ok=True)
-    source_assets_dir = os.path.join(source_dir, 'assets')
 
     if skip_assets:
         skip_assets = [os.path.join(source_assets_dir, d) for d in skip_assets]
@@ -175,3 +174,24 @@ def unzip_assets(assets_dir, zip_files):
             with zipfile.ZipFile(path_to_zip_file, 'r') as zip_ref:
                 zip_ref.extractall(path_to_unzip)
             os.remove(path_to_zip_file)
+
+
+def generate_address_image(source_assets_dir, args):
+    from PIL import Image, ImageDraw, ImageFont, ImageColor
+
+    text = args['text']
+    image_size = args.get('image_size', (100, 200))
+    text_color = args.get('text_color', '#000000')
+    background_color = args.get('background_color', '#ffffff')
+    font = args.get('font', 'Ubuntu-R.ttf')
+    font_size = args.get('font_size', 15)
+
+    img = Image.new('RGB', image_size, color=ImageColor.getrgb(background_color))
+    font = ImageFont.truetype(font, font_size)
+    d = ImageDraw.Draw(img)
+    d.text((1, 1), text, font=font, fill=ImageColor.getrgb(text_color))
+
+    filename = 'a_image.png'
+    filepath = os.path.join(source_assets_dir, 'images', filename)
+    img.save(filepath)
+
