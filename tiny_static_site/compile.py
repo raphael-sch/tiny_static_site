@@ -68,7 +68,7 @@ def run():
         create_thumbnails(source_assets_dir=os.path.join(source_dir, 'assets'),
                           thumbnail_paths=thumbnail_paths)
 
-    if 'address_image' in meta_data:
+    if 'address_image' in sys.argv:
         generate_address_image(source_assets_dir, meta_data['address_image'])
 
     copy_assets(content_dir=content_dir,
