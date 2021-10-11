@@ -107,16 +107,6 @@ def _collect_content(page, route, content, content_dir):
 
     page['route'] = route
 
-    if 'tabs' in page:
-        tabs = list()
-        for tab in page['tabs']:
-            tab['route'] = os.path.join(route, tab['route'])
-            tab['parent'] = page
-            tab['template'] = page['tabs_template']
-            tabs.append(tab)
-            content[tab['route']] = tab
-        page['tabs'] = tabs
-
     content[route] = page
     for loop_index, item in enumerate(page.get('items', []), start=1):
         item['loop_index'] = loop_index
@@ -176,6 +166,8 @@ def render_page(output_dir, templates, meta_data, route, data):
 
     if meta_data['start_page'] == route:
         render_html(output_dir, '', template, data, meta_data)
+    if 'pulled' in data:
+        render_html(output_dir, data['pulled'], template, data, meta_data)
 
     render_html(output_dir, route, template, data, meta_data)
 

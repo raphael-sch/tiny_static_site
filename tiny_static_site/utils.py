@@ -52,13 +52,18 @@ def _maybe_get_env_boolean(str_value):
 
 
 def get_url_for_func(baseurl, content, add_index_html=True):
+    pulled_routes = set()
+    for data in content.values():
+        if 'pulled' in data:
+            pulled_routes.add(data['pulled'])
+
     def url_for(route, filename='index.html'):
         if route not in content:
             raise ValueError('route not found in content')
         if content[route].get('no_render', False):
             if 'forward' in content[route]:
                 route = content[route]['forward']
-            else:
+            elif route not in pulled_routes:
                 raise ValueError('route flagged as no render')
 
         if filename == 'index.html' and not add_index_html:
