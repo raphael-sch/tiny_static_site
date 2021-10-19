@@ -4,13 +4,15 @@ from os import path
 import json
 
 import jinja2
-from bs4 import BeautifulSoup
+import minify_html
 
 from .utils import get_url_for_func, get_assets_url_for_func, get_image_url_for_func
+from .utils import get_js_css_url_for_func
 from .utils import get_build_title_func, get_base_domain
 from .utils import is_active_route
 from .utils import get_parse_url_filter
-from .utils import get_meta_data, copy_meta_files, copy_assets, unzip_assets
+from .utils import get_meta_data, copy_meta_files
+from .utils import copy_assets
 from .utils import generate_address_image
 
 assert sys.version_info >= (3, 8)
@@ -50,6 +52,8 @@ def run():
     jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(searchpath=templates_dir))
     jinja_env.globals.update(url_for=url_for_func)
     jinja_env.globals.update(assets_url_for=get_assets_url_for_func(source_assets_dir, assets_url))
+    jinja_env.globals.update(css_url_for=get_js_css_url_for_func(source_assets_dir, assets_url, 'css'))
+    jinja_env.globals.update(js_url_for=get_js_css_url_for_func(source_assets_dir, assets_url, 'js'))
     jinja_env.globals.update(image_url_for=image_url_for_func)
     jinja_env.globals.update(is_active_route=is_active_route)
     jinja_env.globals.update(build_title=get_build_title_func(meta_data))
@@ -74,9 +78,7 @@ def run():
     copy_assets(content_dir=content_dir,
                 source_assets_dir=source_assets_dir,
                 assets_dir=assets_dir,
-                content=content,
-                skip_assets=meta_data['skip_assets'] if 'skip_copy' in sys.argv else None)
-    unzip_assets(assets_dir, meta_data['unzip_assets'])
+                content=content)
 
 
 def collect_content(content_dir):
@@ -178,8 +180,7 @@ def render_html(output_dir, route, template, page_data, meta_data):
     output_file = path.join(output_dir, 'index.html')
     data = dict(meta=meta_data, page=page_data)
     html = template.render(data)
-    soup = BeautifulSoup(html, features="html.parser")
-    pretty_html = soup.prettify(formatter='html')
+    html = minify_html.minify(html, minify_js=True, remove_processing_instructions=True)
     with open(output_file, 'w') as f:
-        f.write(pretty_html)
+        f.write(html)
     print(output_file)

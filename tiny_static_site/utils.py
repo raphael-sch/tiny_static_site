@@ -1,17 +1,18 @@
 import json
 import os
-import zipfile
 import hashlib
 from shutil import copytree, copy2
 from urllib.parse import urlparse
 
+from jsmin import jsmin
+from rcssmin import cssmin
 
 def get_meta_data(source_dir):
     with open(os.path.join(source_dir, 'meta.json')) as f:
         meta_data = json.load(f)
 
-    meta_data['skip_assets'] = meta_data.get('skip_assets', [])
-    meta_data['unzip_assets'] = meta_data.get('unzip_assets', [])
+    meta_data['assets']['js'] = meta_data['assets'].get('js', [])
+    meta_data['assets']['css'] = meta_data['assets'].get('css', [])
 
     for key in ['baseurl', 'add_index_html', 'branch']:
         env_key = 'RP_' + key.upper()
@@ -79,8 +80,7 @@ def get_assets_url_for_func(source_assets_dir, assets_url):
             p = os.path.join(assets_url, *route, filename)
             if md5:
                 source_path = os.path.join(source_assets_dir, *route, filename)
-                md5_str = hashlib.md5(open(source_path, 'rb').read()).hexdigest()
-                p += '?v=' + str(md5_str)[:10]
+                p = _add_md5(source_path)
         else:
             assert not md5
             p = os.path.join(assets_url, *route)
@@ -105,6 +105,51 @@ def get_image_url_for_func(assets_url, thumbnail_paths=set()):
         return os.path.join(assets_url, 'thumbnails', *route, thumbnail_filename)
 
     return image_url_for, thumbnail_paths
+
+
+def get_js_css_url_for_func(source_assets_dir, assets_dir, js_css=None):
+    assert js_css in ['css', 'js']
+    minifier = dict(css=cssmin, js=jsmin)[js_css]
+    cache = dict()
+
+    def js_css_url_for(*filenames):
+        key = js_css + str(filenames)
+        if key in cache:
+            return cache[key]
+        source_js_css_dir = os.path.join(source_assets_dir, js_css)
+        compiled_js_css_dir = os.path.join(assets_dir, js_css)
+        os.makedirs(compiled_js_css_dir, exist_ok=True)
+
+        minified_strings = list()
+        for filename in filenames:
+            js_css_file = os.path.join(source_js_css_dir, filename)
+            if os.path.isdir(js_css_file):
+                copytree(js_css_file, os.path.join(compiled_js_css_dir, filename), dirs_exist_ok=True)
+                continue
+
+            with open(js_css_file) as js_css_file:
+                if filename.split('.')[-2] == 'min':
+                    minified = js_css_file.read()
+                else:
+                    minified = minifier(js_css_file.read())
+            minified_strings.append(minified)
+
+        output_file_path = os.path.join(compiled_js_css_dir, 'packed.min.' + js_css)
+
+        with open(output_file_path, 'w') as f:
+            f.write('\n'.join(minified_strings))
+
+        output_file_path = _add_md5(output_file_path)
+
+        cache[key] = output_file_path
+        return output_file_path
+    return js_css_url_for
+
+
+def _add_md5(path):
+    md5_str = hashlib.md5(open(path, 'rb').read()).hexdigest()
+    path += '?v=' + str(md5_str)[:10]
+    return path
 
 
 def get_parse_url_filter(assets_url):
@@ -141,11 +186,11 @@ def get_base_domain(url):
     return d
 
 
-def copy_assets(content_dir, source_assets_dir, assets_dir, content, skip_assets=None):
+def copy_assets(content_dir, source_assets_dir, assets_dir, content):
     os.makedirs(assets_dir, exist_ok=True)
 
-    if skip_assets:
-        skip_assets = [os.path.join(source_assets_dir, d) for d in skip_assets]
+    skip_assets = ['js', 'css']
+    skip_assets = [os.path.join(source_assets_dir, d) for d in skip_assets]
 
     def ignore_func(src, names):
         ignore_names = list()
@@ -168,17 +213,6 @@ def copy_assets(content_dir, source_assets_dir, assets_dir, content, skip_assets
             source_path = os.path.join(content_dir, page['route_origin'], 'assets')
             target_path = os.path.join(assets_dir, 'uploads', page['route_origin'])
             copytree(source_path, target_path, dirs_exist_ok=True)
-
-
-def unzip_assets(assets_dir, zip_files):
-    for zip_file in zip_files:
-        path_to_zip_file = os.path.join(assets_dir, zip_file)
-        if os.path.exists(path_to_zip_file):
-            path_to_unzip = os.path.dirname(path_to_zip_file)
-            print('unzip asset', path_to_zip_file)
-            with zipfile.ZipFile(path_to_zip_file, 'r') as zip_ref:
-                zip_ref.extractall(path_to_unzip)
-            os.remove(path_to_zip_file)
 
 
 def generate_address_image(source_assets_dir, args):
