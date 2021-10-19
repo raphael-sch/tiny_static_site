@@ -108,6 +108,7 @@ def get_image_url_for_func(assets_url, thumbnail_paths=set()):
 
 
 def get_js_css_url_for_func(source_assets_dir, assets_dir, js_css=None):
+    os.makedirs(assets_dir, exist_ok=True)
     assert js_css in ['css', 'js']
     minifier = dict(css=cssmin, js=jsmin)[js_css]
     cache = dict()
