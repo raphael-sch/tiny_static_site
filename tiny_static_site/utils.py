@@ -11,9 +11,6 @@ def get_meta_data(source_dir):
     with open(os.path.join(source_dir, 'meta.json')) as f:
         meta_data = json.load(f)
 
-    meta_data['assets']['js'] = meta_data['assets'].get('js', [])
-    meta_data['assets']['css'] = meta_data['assets'].get('css', [])
-
     for key in ['baseurl', 'add_index_html', 'branch']:
         env_key = 'RP_' + key.upper()
         meta_data[key] = _maybe_get_env_boolean(os.getenv(env_key, meta_data[key]))
@@ -80,7 +77,7 @@ def get_assets_url_for_func(source_assets_dir, assets_url):
             p = os.path.join(assets_url, *route, filename)
             if md5:
                 source_path = os.path.join(source_assets_dir, *route, filename)
-                p = _add_md5(source_path)
+                p += _get_md5_arg(source_path)
         else:
             assert not md5
             p = os.path.join(assets_url, *route)
@@ -107,7 +104,7 @@ def get_image_url_for_func(assets_url, thumbnail_paths=set()):
     return image_url_for, thumbnail_paths
 
 
-def get_js_css_url_for_func(source_assets_dir, assets_dir, js_css=None):
+def get_js_css_url_for_func(source_assets_dir, assets_dir, assets_url, js_css=None):
     os.makedirs(assets_dir, exist_ok=True)
     assert js_css in ['css', 'js']
     minifier = dict(css=cssmin, js=jsmin)[js_css]
@@ -135,22 +132,23 @@ def get_js_css_url_for_func(source_assets_dir, assets_dir, js_css=None):
                     minified = minifier(js_css_file.read())
             minified_strings.append(minified)
 
-        output_file_path = os.path.join(compiled_js_css_dir, 'packed.min.' + js_css)
+        output_filename = 'packed.min.' + js_css
+        output_file_path = os.path.join(compiled_js_css_dir, output_filename)
 
         with open(output_file_path, 'w') as f:
             f.write('\n'.join(minified_strings))
 
-        output_file_path = _add_md5(output_file_path)
+        js_css_url = os.path.join(assets_url, js_css, output_filename)
+        js_css_url += _get_md5_arg(output_file_path)
 
-        cache[key] = output_file_path
-        return output_file_path
+        cache[key] = js_css_url
+        return js_css_url
     return js_css_url_for
 
 
-def _add_md5(path):
+def _get_md5_arg(path):
     md5_str = hashlib.md5(open(path, 'rb').read()).hexdigest()
-    path += '?v=' + str(md5_str)[:10]
-    return path
+    return '?v=' + str(md5_str)[:10]
 
 
 def get_parse_url_filter(assets_url):
