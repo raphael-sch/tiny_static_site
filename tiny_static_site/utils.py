@@ -38,6 +38,12 @@ def copy_meta_files(source_dir, compiled_dir, branch):
         print('copy meta file from {} to {}'.format(htpasswd_file, target_file))
         copy2(htpasswd_file, target_file)
 
+    form_php_file = os.path.join(meta_file_dir, 'form.php')
+    if os.path.isfile(form_php_file):
+        target_file = os.path.join(compiled_dir, 'form.php')
+        print('copy meta file from {} to {}'.format(form_php_file, target_file))
+        copy2(form_php_file, target_file)
+
 
 def _maybe_get_env_boolean(str_value):
     if type(str_value) != str:
