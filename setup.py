@@ -9,6 +9,7 @@ setup(
     packages=['tiny_static_site'],
     python_requires=">=3.8",
     install_requires=[
+        'MarkupSafe==2.0.1'
         'Jinja2==2.11.3',
         'beautifulsoup4==4.9.3',
         "Pillow==8.3.2",
