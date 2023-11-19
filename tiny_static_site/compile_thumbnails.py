@@ -15,6 +15,7 @@ def create_thumbnails(source_assets_dir, thumbnail_paths):
 
 def create_thumbnail(image_filepath, thumbnail_path, size):
     os.makedirs(thumbnail_path, exist_ok=True)
+    print('image_filepath', image_filepath)
     image = Image.open(image_filepath)
     image.thumbnail(size, Image.ANTIALIAS)
     background = Image.new('RGBA', size, (255, 255, 255, 0))

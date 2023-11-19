@@ -181,7 +181,9 @@ def get_build_title_func(meta_data):
 
 
 def is_active_route(active_route, link_route):
-    return active_route.startswith(link_route)
+    active_route = [s for s in active_route.split('/') if s != '']
+    link_route = [s for s in link_route.split('/') if s != '']
+    return active_route[:len(link_route)] == link_route
 
 
 def get_base_domain(url):
