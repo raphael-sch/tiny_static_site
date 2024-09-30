@@ -15,7 +15,7 @@ setup(
         "Pillow==8.3.2",
         "jsmin==3.0.0",
         "rcssmin==1.0.6",
-        "minify-html==0.6.8"
+        "minify-html==0.7.0"
     ],
     extras_require={
         'sass': ["libsass==0.20.1"],
