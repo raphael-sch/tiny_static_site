@@ -6,6 +6,8 @@ import json
 import jinja2
 import minify_html
 
+from jinja2_ansible_filters.core_filters import regex_replace
+
 from .utils import get_url_for_func, get_assets_url_for_func, get_image_url_for_func
 from .utils import get_js_css_url_for_func
 from .utils import get_build_title_func, get_base_domain
@@ -59,6 +61,7 @@ def run():
     jinja_env.globals.update(build_title=get_build_title_func(meta_data))
     jinja_env.globals.update(get_base_domain=get_base_domain)
     jinja_env.filters['parse_url'] = get_parse_url_filter(assets_url)
+    jinja_env.filters["regex_replace"] = regex_replace
     templates = jinja_env
 
     for route, data in content.items():

@@ -17,7 +17,7 @@ def create_thumbnail(image_filepath, thumbnail_path, size):
     os.makedirs(thumbnail_path, exist_ok=True)
     print('image_filepath', image_filepath)
     image = Image.open(image_filepath)
-    image.thumbnail(size, Image.ANTIALIAS)
+    image.thumbnail(size, Image.LANCZOS)
     background = Image.new('RGBA', size, (255, 255, 255, 0))
     background.paste(
         image, (int((size[0] - image.size[0]) / 2), int((size[1] - image.size[1]) / 2))
