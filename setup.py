@@ -11,6 +11,7 @@ setup(
     install_requires=[
         'MarkupSafe==2.0.1',
         'Jinja2==2.11.3',
+        'jinja2-ansible-filters==1.3.2',
         'beautifulsoup4==4.9.3',
         "Pillow==8.3.2",
         "jsmin==3.0.0",
