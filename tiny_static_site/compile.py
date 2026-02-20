@@ -114,7 +114,8 @@ def _collect_content(page, route, content, content_dir):
 
     content[route] = page
     for loop_index, item in enumerate(page.get('items', []), start=1):
-        item['loop_index'] = loop_index
+        if 'loop_index' not in item:
+            item['loop_index'] = loop_index
 
         if not item.get('no_render', False):
             item['template'] = _get_item_template(page, item)
